@@ -1,0 +1,126 @@
+
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}{{ artist.name }} | PZT{% endblock %}
+
+{% block content %}
+
+<section class="artist-detail">
+
+    <a href="{% url 'artist_list' %}" class="artist-detail__back">
+        <i data-lucide="arrow-left"></i>
+        Назад к артистам
+    </a>
+
+    <div class="artist-detail__header">
+
+        <div class="artist-detail__image">
+            {% if artist.image %}
+                <img src="{{ artist.image.url }}" alt="{{ artist.name }}">
+            {% endif %}
+        </div>
+
+        <div class="artist-detail__info">
+
+            <span class="artist-detail__label">АРТИСТ</span>
+
+            <h1 class="artist-detail__name">
+                {{ artist.name }}
+            </h1>
+
+            <p class="artist-detail__bio">
+                Изучите релизы и музыку исполнителя {{ artist.name }}.
+            </p>
+
+            <div class="artist-detail__stats">
+
+                <div class="artist-detail__stat">
+                    <strong>{{ releases.count }}</strong>
+                    <span>Релизов</span>
+                </div>
+
+                <div class="artist-detail__stat">
+                    <strong>
+                        {% if first_release %}
+                            {{ first_release.release_date|date:"Y" }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                    <span>Первый релиз</span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <section class="artist-detail__discography">
+
+        <div class="artist-detail__section-header">
+            <div>
+                <h2>Дискография</h2>
+                <p>Все релизы этого исполнителя.</p>
+            </div>
+
+            <span class="artist-detail__release-count">
+                {{ releases.count }} релизов
+            </span>
+        </div>
+
+        <div class="release-grid">
+
+            {% for release in releases %}
+
+                <a href="{% url 'release_detail' release.slug %}" class="release-card">
+
+                    <div class="release-card__cover">
+                        {% if release.cover %}
+                            <img src="{{ release.cover.url }}" alt="{{ release.title }}">
+                        {% endif %}
+                    </div>
+
+                    <div class="release-card__info">
+
+                        <h3 class="release-card__title">
+                            {{ release.title }}
+                        </h3>
+
+                        <p class="release-card__artist">
+                            {% if release.release_date %}
+                                {{ release.release_date|date:"Y" }}
+                            {% else %}
+                                Год неизвестен
+                            {% endif %}
+
+                            ·
+
+                            {% for genre in release.genres.all %}
+                                {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                Жанр неизвестен
+                            {% endfor %}
+                        </p>
+
+                        {% if release.rating %}
+                            <span class="release-card__rating">
+                                ★ {{ release.rating.total_score }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </a>
+
+            {% empty %}
+                <p>У этого исполнителя пока нет релизов.</p>
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}

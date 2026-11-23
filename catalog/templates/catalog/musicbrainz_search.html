@@ -1,0 +1,134 @@
+
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="page-content musicbrainz-page">
+  <h1>MusicBrainz Search</h1>
+
+  <form method="GET" action="{% url 'musicbrainz_search' %}">
+    <input
+      type="text"
+      name="q"
+      placeholder="Search for an artist, album or track..."
+      value="{{ query }}"
+    />
+
+    <button type="submit">Search</button>
+  </form>
+
+  {% if query %}
+
+  <h2>Search results for: {{ query }}</h2>
+
+  {% if error %}
+
+  <p>{{ error }}</p>
+
+  {% else %}
+
+  <!-- ARTISTS -->
+
+  <section class="search-section">
+    <h2>Artists</h2>
+
+    {% for item in artists %}
+
+    <div class="search-result">
+      <h3>{{ item.name }}</h3>
+
+      <p>Type: {{ item.type|default:"Unknown" }}</p>
+      <p>Country: {{ item.country|default:"Unknown" }}</p>
+
+      {% if item.disambiguation %}
+      <p>Description: {{ item.disambiguation }}</p>
+      {% endif %}
+
+      {% if item.begin %}
+      <p>Active since: {{ item.begin }}</p>
+      {% endif %}
+
+      {% if item.end %}
+      <p>Ended: {{ item.end }}</p>
+      {% endif %}
+
+      {% if item.in_pzt %}
+
+      <p>Already in PZT</p>
+
+      {% else %}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <input type="hidden" name="musicbrainz_id" value="{{ item.id }}" />
+
+        <input type="hidden" name="entity_type" value="artist" />
+
+        <button type="submit">Import to PZT</button>
+      </form>
+
+      {% endif %}
+
+      <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+        Open in MusicBrainz
+      </a>
+    </div>
+
+    {% empty %}
+
+    <p>No artists found.</p>
+
+    {% endfor %}
+  </section>
+
+  <!-- RELEASES -->
+
+  <section class="search-section">
+    <h2>Releases</h2>
+
+    {% for item in releases %}
+
+    <div class="search-result">
+      <h3>{{ item.title }}</h3>
+
+      <p>Artist: {{ item.artist_names }}</p>
+      <p>Release date: {{ item.date|default:"Unknown" }}</p>
+      <p>Type: {{ item.primary_type|default:"Unknown" }}</p>
+      <p>Status: {{ item.status|default:"Unknown" }}</p>
+
+      {% if item.in_pzt %}
+
+      <p>Already in PZT</p>
+
+      {% else %}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <input type="hidden" name="musicbrainz_id" value="{{ item.id }}" />
+
+        <input type="hidden" name="entity_type" value="release" />
+
+        <button type="submit">Import to PZT</button>
+      </form>
+
+      {% endif %}
+
+      <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+        Open in MusicBrainz
+      </a>
+    </div>
+
+    {% empty %}
+
+    <p>No releases found.</p>
+
+    {% endfor %}
+  </section>
+
+  {% endif %}
+  {% endif %}
+</div>
+
+{% endblock %}

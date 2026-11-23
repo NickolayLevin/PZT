@@ -1,0 +1,108 @@
+
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Релизы | PZT{% endblock %}
+
+{% block content %}
+
+<section class="releases-page">
+  <div class="releases-page__header">
+    <div>
+      <h1 class="releases-page__title">Все релизы</h1>
+      <p class="releases-page__description">
+        Здесь собраны все оцененные PZT релизы.
+      </p>
+    </div>
+  </div>
+
+  <div class="releases-toolbar">
+    <div class="releases-toolbar__search">
+      <i data-lucide="search"></i>
+      <input type="search" placeholder="Поиск релизов..." />
+    </div>
+
+    <div class="releases-toolbar__filters">
+      <select class="releases-toolbar__select" id="genre-filter">
+        <option value="">Все жанры</option>
+
+        {% for genre in genres %}
+        <option value="{{ genre.slug }}">{{ genre.name }}</option>
+        {% endfor %}
+      </select>
+
+      <select class="releases-toolbar__select" id="type-filter">
+        <option value="">Все типы</option>
+        <option value="album">Альбомы</option>
+        <option value="ep">Мини-альбомы (EP)</option>
+        <option value="single">Синглы</option>
+        <option value="mixtape">Микстейпы</option>
+        <option value="compilation">Сборники</option>
+        <option value="other">Другое</option>
+      </select>
+
+      <select class="releases-toolbar__select" id="year-filter">
+        <option value="">Все годы</option>
+
+        {% for year in years %}
+        <option value="{{ year|date:'Y' }}">{{ year|date:'Y' }}</option>
+        {% endfor %}
+      </select>
+
+      <select class="releases-toolbar__select">
+        <option value="newest">Сначала новые</option>
+        <option value="oldest">Сначала старые</option>
+        <option value="title">По названию</option>
+        <option value="rating">По рейтингу</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="release-grid">
+    {% for release in releases %}
+
+    <a
+      href="{% url 'release_detail' release.slug %}"
+      class="release-card"
+      data-genre="{% for genre in release.genres.all %}{{ genre.slug }}{% if not forloop.last %} {% endif %}{% endfor %}"
+      data-year="{{ release.release_date|date:'Y' }}"
+      data-date="{{ release.release_date|date:'Y-m-d' }}"
+      data-rating="{% if release.rating %}{{ release.rating.total_score }}{% else %}0{% endif %}"
+      data-type="{{ release.release_type }}"
+    >
+      <div class="release-card__cover">
+        {% if release.cover %}
+        <img src="{{ release.cover.url }}" alt="{{ release.title }}" />
+        {% endif %}
+      </div>
+
+      <div class="release-card__info">
+        <h3 class="release-card__title">{{ release.title }}</h3>
+
+        <p class="release-card__artist">
+          {% for artist in release.artists.all %}
+              {{ artist.name }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+              Неизвестный исполнитель
+          {% endfor %}
+        </p>
+
+        {% if release.rating %}
+        <span class="release-card__rating">
+          ★ {{ release.rating.total_score }}
+        </span>
+        {% endif %}
+      </div>
+    </a>
+
+    {% empty %}
+
+    <p>Релизов пока нет.</p>
+
+    {% endfor %}
+  </div>
+
+  <p class="releases-empty" hidden>Релизы не найдены.</p>
+</section>
+
+{% endblock %}

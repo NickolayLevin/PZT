@@ -1,0 +1,96 @@
+
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Главная | PZT{% endblock %}
+
+{% block content %}
+
+<section class="home-section">
+    <div class="section-header">
+        <div class="section-header__info">
+            <h1 class="section-header__title"> <span class="letters">P</span>идор <span class="letters">Z</span>а <span class="letters">T</span>ворчество</h1>
+            <p class="section-header__description">Только объективные оценки</p>
+        </div>
+    </div>
+</section>
+
+<section class="home-section">
+    <div class="section-header">
+        <h2 class="section-header__title">Недавно добавленные</h2>
+
+        <a href="{% url 'releases' %}" class="section-header__link">
+            Смотреть все
+            <i data-lucide="arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="release-grid">
+        {% for release in recently_added %}
+            <a href="{% url 'release_detail' release.slug %}" class="release-card">
+                <div class="release-card__cover">
+                    {% if release.cover %}
+                        <img src="{{ release.cover.url }}" alt="{{ release.title }}">
+                    {% endif %}
+                </div>
+
+                <div class="release-card__info">
+                    <h3 class="release-card__title">{{ release.title }}</h3>
+
+                    <p class="release-card__artist">
+                        {% for artist in release.artists.all %}
+                            {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Неизвестный исполнитель
+                        {% endfor %}
+                    </p>
+                </div>
+            </a>
+        {% empty %}
+            <p>Релизов пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="home-section">
+    <div class="section-header">
+        <h2 class="section-header__title">Самые худшие</h2>
+
+        <a href="{% url 'releases' %}" class="section-header__link">
+            Смотреть все
+            <i data-lucide="arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="release-grid">
+        {% for release in least_rated %}
+            <a href="{% url 'release_detail' release.slug %}" class="release-card">
+                <div class="release-card__cover">
+                    {% if release.cover %}
+                        <img src="{{ release.cover.url }}" alt="{{ release.title }}">
+                    {% endif %}
+                </div>
+
+                <div class="release-card__info">
+                    <h3 class="release-card__title">{{ release.title }}</h3>
+
+                    <p class="release-card__artist">
+                        {% for artist in release.artists.all %}
+                            {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Неизвестный исполнитель
+                        {% endfor %}
+                    </p>
+
+                    <span class="release-card__rating">
+                        ★ {{ release.rating.total_score }}
+                    </span>
+                </div>
+            </a>
+        {% empty %}
+            <p>Оценённых релизов пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">PZT<span>.</span></div>
+      <form class="search">
+        <button type="submit" class="search_button">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </button>
+        <input
+          type="search"
+          placeholder="Search releases, artists..."
+          class="search__input"
+        />
+      </form>
+    </header>
+
+    <aside class="sidebar">
+      <nav class="sidebar_nav">
+        <a href="index.html" class="sidebar_link">
+          <i data-lucide="house"></i>
+        </a>
+        <a href="releases.html" class="sidebar_link active">
+          <i data-lucide="disc-3"></i>
+        </a>
+        <a href="#" class="sidebar_link">
+          <i data-lucide="users"></i>
+        </a>
+      </nav>
+    </aside>
+    
+<main class="main">
+  <section class="release-detail">
+
+    <a href="releases.html" class="release-detail__back">
+      <i data-lucide="arrow-left"></i>
+      Back to releases
+    </a>
+
+    <div class="release-detail__content">
+
+      <div class="release-detail__cover">
+        <img src="images/cover-1.jpg" alt="Album cover">
+      </div>
+
+      <div class="release-detail__info">
+
+        <span class="release-detail__label">ALBUM</span>
+
+        <h1 class="release-detail__title">
+          Album Title One
+        </h1>
+
+        <p class="release-detail__artist">
+          Artist Name
+        </p>
+
+        <div class="release-detail__meta">
+          <div class="release-detail__meta-item">
+            <span>Release date</span>
+            <strong>June 15, 2025</strong>
+          </div>
+
+          <div class="release-detail__meta-item">
+            <span>Genre</span>
+            <strong>Rock</strong>
+          </div>
+
+          <div class="release-detail__meta-item">
+            <span>Type</span>
+            <strong>Studio Album</strong>
+          </div>
+        </div>
+
+        <div class="release-detail__rating">
+          <i data-lucide="star"></i>
+
+          <div>
+            <strong>8.5</strong>
+            <span>My rating</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <section class="release-detail__description">
+      <h2>About this release</h2>
+
+      <p>
+        This is a sample description of the album.
+        Here you can write information about the music,
+        its creation, background and your personal impressions.
+      </p>
+    </section>
+
+    <section class="release-detail__similar">
+      <h2>More releases</h2>
+
+      <div class="release-grid">
+
+        <a href="#" class="release-card">
+          <div class="release-card__cover">
+            <img src="images/cover-2.jpg" alt="Album cover">
+          </div>
+          <div class="release-card__info">
+            <h3 class="release-card__title">Album Title Two</h3>
+            <p class="release-card__artist">Artist Name</p>
+          </div>
+        </a>
+
+        <a href="#" class="release-card">
+          <div class="release-card__cover">
+            <img src="images/cover-3.jpg" alt="Album cover">
+          </div>
+          <div class="release-card__info">
+            <h3 class="release-card__title">Album Title Three</h3>
+            <p class="release-card__artist">Artist Name</p>
+          </div>
+        </a>
+
+        <a href="#" class="release-card">
+          <div class="release-card__cover">
+            <img src="images/cover-4.jpg" alt="Album cover">
+          </div>
+          <div class="release-card__info">
+            <h3 class="release-card__title">Album Title Four</h3>
+            <p class="release-card__artist">Artist Name</p>
+          </div>
+        </a>
+
+        <a href="#" class="release-card">
+          <div class="release-card__cover">
+            <img src="images/cover-1.jpg" alt="Album cover">
+          </div>
+          <div class="release-card__info">
+            <h3 class="release-card__title">Album Title Five</h3>
+            <p class="release-card__artist">Artist Name</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </section>
+</main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+      lucide.createIcons();
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>

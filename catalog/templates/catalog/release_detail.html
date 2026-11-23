@@ -1,0 +1,212 @@
+
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ release.title }} — PZT{% endblock %}
+
+{% block content %}
+
+<section class="release-detail">
+
+    <a href="{% url 'releases' %}" class="release-detail__back">
+        <i data-lucide="arrow-left"></i>
+        Назад к релизам
+    </a>
+
+    <div class="release-detail__content">
+
+        <div class="release-detail__cover">
+            {% if release.cover %}
+                <img src="{{ release.cover.url }}" alt="{{ release.title }}">
+            {% endif %}
+        </div>
+
+        <div class="release-detail__info">
+
+            <span class="release-detail__label">
+                {{ release.get_release_type_display|upper }}
+            </span>
+
+            <h1 class="release-detail__title">
+                {{ release.title }}
+            </h1>
+
+            <p class="release-detail__artist">
+                {% for artist in release.artists.all %}
+                    <a href="{% url 'artist_detail' artist.slug %}">
+                        {{ artist.name }}
+                    </a>{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Неизвестный исполнитель
+                {% endfor %}
+            </p>
+
+            <div class="release-detail__meta">
+
+                <div class="release-detail__meta-item">
+                    <span>Дата выхода</span>
+                    <strong>
+                        {% if release.release_date %}
+                            {{ release.release_date|date:"j F Y" }}
+                        {% else %}
+                            Неизвестна
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="release-detail__meta-item">
+                    <span>Жанр</span>
+                    <strong>
+                        {% for genre in release.genres.all %}
+                            {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Неизвестен
+                        {% endfor %}
+                    </strong>
+                </div>
+
+                <div class="release-detail__meta-item">
+                    <span>Тип релиза</span>
+                    <strong>
+                        {{ release.get_release_type_display }}
+                    </strong>
+                </div>
+
+            </div>
+
+            {% if release.rating %}
+
+                <div class="release-detail__rating">
+                    <i data-lucide="star"></i>
+
+                    <div>
+                        <strong>{{ release.rating.total_score }}</strong>
+                        <span>Моя оценка</span>
+                    </div>
+                </div>
+
+                <div class="release-detail__rating-details">
+
+                    <div class="release-detail__rating-item">
+                        <div>
+                            <span>Рифмы</span>
+                            <strong>{{ release.rating.rhymes }}/10</strong>
+                        </div>
+
+                        <div class="release-detail__rating-bar">
+                            <div style="width: {% widthratio release.rating.rhymes 10 100 %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="release-detail__rating-item">
+                        <div>
+                            <span>Структура</span>
+                            <strong>{{ release.rating.structure }}/10</strong>
+                        </div>
+
+                        <div class="release-detail__rating-bar">
+                            <div style="width: {% widthratio release.rating.structure 10 100 %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="release-detail__rating-item">
+                        <div>
+                            <span>Стиль</span>
+                            <strong>{{ release.rating.style }}/10</strong>
+                        </div>
+
+                        <div class="release-detail__rating-bar">
+                            <div style="width: {% widthratio release.rating.style 10 100 %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="release-detail__rating-item">
+                        <div>
+                            <span>Индивидуальность</span>
+                            <strong>{{ release.rating.individuality }}/10</strong>
+                        </div>
+
+                        <div class="release-detail__rating-bar">
+                            <div style="width: {% widthratio release.rating.individuality 10 100 %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="release-detail__rating-item">
+                        <div>
+                            <span>Атмосфера</span>
+                            <strong>{{ release.rating.vibe }}/10</strong>
+                        </div>
+
+                        <div class="release-detail__rating-bar">
+                            <div style="width: {% widthratio release.rating.vibe 10 100 %}%"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+            {% elif request.user.is_superuser %}
+
+                <a
+                    href="{% url 'rate_release' release.slug %}"
+                    class="release-detail__rate-button"
+                >
+                    <i data-lucide="star"></i>
+                    Оценить релиз
+                </a>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+    <section class="release-detail__similar">
+
+        <h2>Другие релизы</h2>
+
+        <div class="release-grid">
+
+            {% for item in more_releases %}
+
+                <div class="release-card">
+
+                    <a href="{% url 'release_detail' item.slug %}">
+                        <div class="release-card__cover">
+                            {% if item.cover %}
+                                <img src="{{ item.cover.url }}" alt="{{ item.title }}">
+                            {% endif %}
+                        </div>
+                    </a>
+
+                    <div class="release-card__info">
+
+                        <h3 class="release-card__title">
+                            <a href="{% url 'release_detail' item.slug %}">
+                                {{ item.title }}
+                            </a>
+                        </h3>
+
+                        <p class="release-card__artist">
+                            {% for artist in item.artists.all %}
+                                <a href="{% url 'artist_detail' artist.slug %}">
+                                    {{ artist.name }}
+                                </a>{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                Неизвестный исполнитель
+                            {% endfor %}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% empty %}
+
+                <p>Других релизов пока нет.</p>
+
+            {% endfor %}
+
+        </div>
+    </section>
+
+</section>
+
+{% endblock %}

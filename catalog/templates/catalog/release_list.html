@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Музыкальный каталог</title>
+</head>
+<body>
+    <h1>Музыкальный каталог</h1>
+
+    {% for release in releases %}
+        <div>
+            <h2>
+                <a href="{% url 'release_detail' slug=release.slug %}">
+                    {{ release.title }}
+                </a>
+            </h2>
+
+            {% if release.cover %}
+                <img src="{{ release.cover.url }}" alt="{{ release.title }}" width="200">
+            {% endif %}
+
+            <p>Тип релиза: {{ release.get_release_type_display }}</p>
+
+            <p>Дата выхода: {{ release.release_date|default:"Не указана" }}</p>
+
+            <p>Исполнители:
+                {% for artist in release.artists.all %}
+                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Не указаны
+                {% endfor %}
+            </p>
+
+            <p>Жанры:
+                {% for genre in release.genres.all %}
+                    {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Не указаны
+                {% endfor %}
+            </p>
+
+            {% if release.rating %}
+                <p>Оценка: {{ release.rating.total_score }}</p>
+            {% else %}
+                <p>Оценка: Пока не выставлена</p>
+            {% endif %}
+        </div>
+
+        <hr>
+    {% empty %}
+        <p>В каталоге пока нет релизов.</p>
+    {% endfor %}
+</body>
+</html>

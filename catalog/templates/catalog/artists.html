@@ -1,0 +1,74 @@
+
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Артисты | PZT{% endblock %}
+
+{% block content %}
+
+<section class="artists-page">
+
+    <div class="artists-header">
+        <div>
+            <h1 class="page-title">Артисты</h1>
+            <p class="releases-page__description">
+                Взгляните на этих даунов.
+            </p>
+        </div>
+
+        <span class="artists-count">
+            {{ artists.count }} артистов
+        </span>
+    </div>
+
+    <div class="artists-toolbar">
+        <div class="artists-search">
+            <i data-lucide="search"></i>
+            <input
+                type="search"
+                id="artist-search"
+                placeholder="Поиск артистов..."
+            >
+        </div>
+    </div>
+
+    <div class="artists-grid">
+
+        {% for artist in artists %}
+            <a href="{% url 'artist_detail' artist.slug %}" class="artist-card">
+
+                <div class="artist-card__image">
+                    {% if artist.image %}
+                        <img src="{{ artist.image.url }}" alt="{{ artist.name }}">
+                    {% endif %}
+                </div>
+
+                <div class="artist-card__info">
+                    <h3 class="artist-card__name">
+                        {{ artist.name }}
+                    </h3>
+
+                    <p class="artist-card__releases">
+                        {{ artist.release_count }}
+                        {% if artist.release_count == 1 %}
+                            релиз
+                        {% else %}
+                            релизов
+                        {% endif %}
+                    </p>
+                </div>
+
+            </a>
+        {% empty %}
+            <p>Артистов пока нет.</p>
+        {% endfor %}
+
+    </div>
+
+    <p class="artists-empty" hidden>
+        Артисты не найдены.
+    </p>
+
+</section>
+
+{% endblock %}

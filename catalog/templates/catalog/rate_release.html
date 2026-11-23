@@ -1,0 +1,201 @@
+
+{% extends 'catalog/base.html' %}
+
+{% block title %}Оценка {{ release.title }} — PZT{% endblock %}
+
+{% block content %}
+
+<section class="rate-release">
+  <a
+    href="{% url 'release_detail' release.slug %}"
+    class="release-detail__back"
+  >
+    <i data-lucide="arrow-left"></i>
+    Назад к релизу
+  </a>
+
+  <div class="rate-release__header">
+    <h1>Оценить релиз</h1>
+    <p>{{ release.title }}</p>
+  </div>
+
+  {% if error %}
+  <p class="rate-release__error">{{ error }}</p>
+  {% endif %}
+
+  <form method="POST" class="rate-release__form">
+    {% csrf_token %}
+
+    <div class="rate-release__field">
+      <div class="rate-release__field-header">
+        <label for="rhymes">Рифмы</label>
+        <output id="rhymes-value">5</output>
+      </div>
+
+      <input
+        type="range"
+        id="rhymes"
+        name="rhymes"
+        min="1"
+        max="10"
+        step="1"
+        value="5"
+      />
+    </div>
+
+    <div class="rate-release__field">
+      <div class="rate-release__field-header">
+        <label for="structure">Структура</label>
+        <output id="structure-value">5</output>
+      </div>
+
+      <input
+        type="range"
+        id="structure"
+        name="structure"
+        min="1"
+        max="10"
+        step="1"
+        value="5"
+      />
+    </div>
+
+    <div class="rate-release__field">
+      <div class="rate-release__field-header">
+        <label for="style">Стиль</label>
+        <output id="style-value">5</output>
+      </div>
+
+      <input
+        type="range"
+        id="style"
+        name="style"
+        min="1"
+        max="10"
+        step="1"
+        value="5"
+      />
+    </div>
+
+    <div class="rate-release__field">
+      <div class="rate-release__field-header">
+        <label for="individuality">Индивидуальность</label>
+        <output id="individuality-value">5</output>
+      </div>
+
+      <input
+        type="range"
+        id="individuality"
+        name="individuality"
+        min="1"
+        max="10"
+        step="1"
+        value="5"
+      />
+    </div>
+
+    <div class="rate-release__field">
+      <div class="rate-release__field-header">
+        <label for="vibe">Атмосфера</label>
+        <output id="vibe-value">5</output>
+      </div>
+
+      <input
+        type="range"
+        id="vibe"
+        name="vibe"
+        min="1"
+        max="10"
+        step="1"
+        value="5"
+      />
+    </div>
+
+    <div class="rate-release__total">
+      <span>Итоговая оценка</span>
+      <output id="final-score">36</output>
+    </div>
+
+    <button type="submit">Сохранить оценку</button>
+  </form>
+</section>
+
+<script>
+  const sliders = document.querySelectorAll(
+    '.rate-release__field input[type="range"]',
+  );
+
+  const multipliers = {
+    1: 10000,
+    2: 10675,
+    3: 11349,
+    4: 12024,
+    5: 12699,
+    6: 13373,
+    7: 14048,
+    8: 14723,
+    9: 15397,
+    10: 16072,
+  };
+
+  function updateTotalScore() {
+    const rhymes = Number(document.getElementById("rhymes").value);
+    const structure = Number(document.getElementById("structure").value);
+    const style = Number(document.getElementById("style").value);
+    const individuality = Number(
+      document.getElementById("individuality").value,
+    );
+    const vibe = Number(document.getElementById("vibe").value);
+
+    const criteriaSum = rhymes + structure + style + individuality;
+
+    const numerator = criteriaSum * 14 * multipliers[vibe];
+    const totalScore = Math.floor((numerator + 50000) / 100000);
+
+    const scoreOutput = document.getElementById("final-score");
+
+    scoreOutput.textContent = totalScore;
+
+    scoreOutput.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.2)" },
+        { transform: "scale(1)" },
+      ],
+      {
+        duration: 250,
+        easing: "ease-out",
+      },
+    );
+  }
+
+  sliders.forEach((slider) => {
+    const output = document.getElementById(slider.name + "-value");
+
+    function updateSlider() {
+      const min = Number(slider.min);
+      const max = Number(slider.max);
+      const value = Number(slider.value);
+
+      const percentage = ((value - min) / (max - min)) * 100;
+
+      slider.style.background = `
+            linear-gradient(
+                to right,
+                #FFD166 ${percentage}%,
+                #191D1E ${percentage}%
+            )
+        `;
+
+      output.textContent = value;
+
+      updateTotalScore();
+    }
+
+    slider.addEventListener("input", updateSlider);
+
+    updateSlider();
+  });
+</script>
+
+{% endblock %}
