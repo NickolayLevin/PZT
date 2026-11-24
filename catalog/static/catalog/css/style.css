@@ -1439,3 +1439,180 @@ body{
 .release-card__artist a:hover {
     color: #FFD166;
 }
+
+
+
+/* MUSICBRAINZ PAGINATION */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-top: 28px;
+    padding: 18px 20px;
+
+    background-color: #25292A;
+    border: 1px solid #34393A;
+    border-radius: 12px;
+}
+
+/* Previous / Next */
+
+.pagination-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+    padding: 0 15px;
+
+    border: 1px solid #424849;
+    border-radius: 8px;
+
+    color: #D5D8D8;
+    background-color: #1C2021;
+
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+
+    transition: color 0.2s ease,
+                border-color 0.2s ease,
+                background-color 0.2s ease;
+}
+
+.pagination-arrow:hover {
+    color: #FFD166;
+    border-color: #FFD166;
+}
+
+.pagination-arrow.disabled {
+    color: #555B5C;
+    border-color: #303536;
+    cursor: not-allowed;
+}
+
+/* Page Jump Form */
+
+.pagination-jump {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}
+
+.pagination-jump label,
+.pagination-jump span {
+    color: #858B8C;
+    font-size: 13px;
+}
+
+.pagination-jump input {
+    width: 58px;
+    height: 38px;
+    padding: 0 8px;
+
+    border: 1px solid #424849;
+    border-radius: 8px;
+    outline: none;
+
+    background-color: #1C2021;
+    color: #FFD166;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+
+    transition: border-color 0.2s ease;
+}
+
+.pagination-jump input:focus {
+    border-color: #FFD166;
+}
+
+/* Remove number input arrows */
+
+.pagination-jump input::-webkit-inner-spin-button,
+.pagination-jump input::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+.pagination-jump input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Go Button */
+
+.pagination-jump button {
+    min-height: 38px;
+    padding: 0 15px;
+
+    border: none;
+    border-radius: 8px;
+
+    background-color: #FFD166;
+    color: #1C2021;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.pagination-jump button:hover {
+    background-color: #F5BD4F;
+    transform: translateY(-1px);
+}
+
+/* Keyboard Focus */
+
+.pagination a:focus-visible,
+.pagination button:focus-visible,
+.pagination input:focus-visible {
+    outline: 2px solid #FFD166;
+    outline-offset: 3px;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+    .pagination {
+        gap: 10px;
+        padding: 15px 10px;
+    }
+
+    .pagination-arrow {
+        min-height: 36px;
+        padding: 0 11px;
+        font-size: 12px;
+    }
+
+    .pagination-jump {
+        gap: 6px;
+    }
+
+    .pagination-jump label,
+    .pagination-jump span {
+        font-size: 12px;
+    }
+
+    .pagination-jump input {
+        width: 48px;
+        height: 36px;
+    }
+
+    .pagination-jump button {
+        min-height: 36px;
+        padding: 0 11px;
+    }
+}

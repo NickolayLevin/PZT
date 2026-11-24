@@ -95,27 +95,33 @@ def _format_artist_credit(artist_credit):
     }
 
 
-def _search_musicbrainz(entity_type, query, limit=10):
+
+def _search_musicbrainz(
+    entity_type,
+    query,
+    limit=100,
+    offset=0,
+    with_count=False
+):
 
     if entity_type not in ('release', 'recording', 'artist'):
         raise ValueError("Неподдерживаемый тип поиска")
 
     if not query or not query.strip():
-        return []
+        return ([], 0) if with_count else []
+
+    limit = max(1, min(int(limit), 100))
+    offset = max(0, int(offset))
 
     params = {
         'query': query.strip(),
         'fmt': 'json',
         'limit': limit,
+        'offset': offset,
     }
 
     response = _musicbrainz_get(entity_type, params)
-
-    response.raise_for_status()
-
     data = response.json()
-
-    results = []
 
     if entity_type == 'release':
         items = data.get('releases', [])
@@ -123,7 +129,13 @@ def _search_musicbrainz(entity_type, query, limit=10):
         items = data.get('recordings', [])
     else:
         items = data.get('artists', [])
+
+    count = data.get('count', len(items))
+
+    results = []
+
     for item in items:
+
         credit = _format_artist_credit(
             item.get('artist-credit', [])
         )
@@ -137,6 +149,7 @@ def _search_musicbrainz(entity_type, query, limit=10):
         }
 
         if entity_type == 'release':
+
             release_group = item.get('release-group') or {}
 
             result.update({
@@ -150,13 +163,16 @@ def _search_musicbrainz(entity_type, query, limit=10):
             })
 
         elif entity_type == 'recording':
+
             result.update({
                 'length': item.get('length'),
                 'first_release_date': item.get(
                     'first-release-date'
                 ),
             })
+
         else:
+
             life_span = item.get('life-span') or {}
 
             result.update({
@@ -171,36 +187,58 @@ def _search_musicbrainz(entity_type, query, limit=10):
 
         results.append(result)
 
+    if with_count:
+        return results, count
+
     return results
 
 
-def search_releases(query, limit=10):
+def search_releases(
+    query,
+    limit=100,
+    offset=0,
+    with_count=False
+):
 
     return _search_musicbrainz(
         'release',
         query,
-        limit
+        limit,
+        offset,
+        with_count
     )
 
 
-def search_recordings(query, limit=10):
+def search_recordings(
+    query,
+    limit=100,
+    offset=0,
+    with_count=False
+):
 
     return _search_musicbrainz(
         'recording',
         query,
-        limit
+        limit,
+        offset,
+        with_count
     )
 
 
-
-def search_artists(query, limit=10):
+def search_artists(
+    query,
+    limit=100,
+    offset=0,
+    with_count=False
+):
 
     return _search_musicbrainz(
         'artist',
         query,
-        limit
+        limit,
+        offset,
+        with_count
     )
-
 
 
 def get_artist_details(musicbrainz_id):

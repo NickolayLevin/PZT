@@ -4,131 +4,235 @@
 {% block content %}
 
 <div class="page-content musicbrainz-page">
-  <h1>MusicBrainz Search</h1>
+    <h1>MusicBrainz Search</h1>
 
-  <form method="GET" action="{% url 'musicbrainz_search' %}">
-    <input
-      type="text"
-      name="q"
-      placeholder="Search for an artist, album or track..."
-      value="{{ query }}"
-    />
+    <form method="GET" action="{% url 'musicbrainz_search' %}">
+        <input
+            type="text"
+            name="q"
+            placeholder="Search for an artist, album or track..."
+            value="{{ query }}"
+        />
+        <button type="submit">Search</button>
+    </form>
 
-    <button type="submit">Search</button>
-  </form>
+    {% if query %}
 
-  {% if query %}
+        <h2>Search results for: {{ query }}</h2>
 
-  <h2>Search results for: {{ query }}</h2>
+        {% if error %}
 
-  {% if error %}
+            <p>{{ error }}</p>
 
-  <p>{{ error }}</p>
+        {% else %}
 
-  {% else %}
+            <!-- ARTISTS -->
 
-  <!-- ARTISTS -->
+            <section class="search-section">
+                <h2>Artists</h2>
 
-  <section class="search-section">
-    <h2>Artists</h2>
+                <p>
+                    Found: {{ artists_total }} |
+                    Page {{ artists_page }} of {{ artists_total_pages }}
+                </p>
 
-    {% for item in artists %}
+                {% for item in artists %}
 
-    <div class="search-result">
-      <h3>{{ item.name }}</h3>
+                    <div class="search-result">
+                        <h3>{{ item.name }}</h3>
 
-      <p>Type: {{ item.type|default:"Unknown" }}</p>
-      <p>Country: {{ item.country|default:"Unknown" }}</p>
+                        <p>Type: {{ item.type|default:"Unknown" }}</p>
+                        <p>Country: {{ item.country|default:"Unknown" }}</p>
 
-      {% if item.disambiguation %}
-      <p>Description: {{ item.disambiguation }}</p>
-      {% endif %}
+                        {% if item.disambiguation %}
+                            <p>Description: {{ item.disambiguation }}</p>
+                        {% endif %}
 
-      {% if item.begin %}
-      <p>Active since: {{ item.begin }}</p>
-      {% endif %}
+                        {% if item.begin %}
+                            <p>Active since: {{ item.begin }}</p>
+                        {% endif %}
 
-      {% if item.end %}
-      <p>Ended: {{ item.end }}</p>
-      {% endif %}
+                        {% if item.end %}
+                            <p>Ended: {{ item.end }}</p>
+                        {% endif %}
 
-      {% if item.in_pzt %}
+                        {% if item.in_pzt %}
 
-      <p>Already in PZT</p>
+                            <p>Already in PZT</p>
 
-      {% else %}
+                        {% else %}
 
-      <form method="POST">
-        {% csrf_token %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="musicbrainz_id" value="{{ item.id }}" />
+                                <input type="hidden" name="entity_type" value="artist" />
+                                <button type="submit">Import to PZT</button>
+                            </form>
 
-        <input type="hidden" name="musicbrainz_id" value="{{ item.id }}" />
+                        {% endif %}
 
-        <input type="hidden" name="entity_type" value="artist" />
+                        <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+                            Open in MusicBrainz
+                        </a>
+                    </div>
 
-        <button type="submit">Import to PZT</button>
-      </form>
+                {% empty %}
 
-      {% endif %}
+                    <p>No artists found.</p>
 
-      <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
-        Open in MusicBrainz
-      </a>
-    </div>
+                {% endfor %}
 
-    {% empty %}
+                {% if artists_total_pages > 1 %}
 
-    <p>No artists found.</p>
+                    <nav class="pagination" aria-label="Artists pagination">
 
-    {% endfor %}
-  </section>
+                        {% if artists_page > 1 %}
+                            <a
+                                class="pagination-arrow"
+                                href="?q={{ query|urlencode }}&artists_page={{ artists_page|add:'-1' }}&releases_page={{ releases_page }}"
+                            >
+                                Previous
+                            </a>
+                        {% else %}
+                            <span class="pagination-arrow disabled">Previous</span>
+                        {% endif %}
 
-  <!-- RELEASES -->
+                        <form method="GET" class="pagination-jump">
+                            <input type="hidden" name="q" value="{{ query }}" />
+                            <input type="hidden" name="releases_page" value="{{ releases_page }}" />
 
-  <section class="search-section">
-    <h2>Releases</h2>
+                            <label for="artists-page-input">Page</label>
+                            <input
+                                id="artists-page-input"
+                                type="number"
+                                name="artists_page"
+                                value="{{ artists_page }}"
+                                min="1"
+                                max="{{ artists_total_pages }}"
+                                required
+                            />
+                            <span>of {{ artists_total_pages }}</span>
 
-    {% for item in releases %}
+                            <button type="submit">Go</button>
+                        </form>
 
-    <div class="search-result">
-      <h3>{{ item.title }}</h3>
+                        {% if artists_page < artists_total_pages %}
+                            <a
+                                class="pagination-arrow"
+                                href="?q={{ query|urlencode }}&artists_page={{ artists_page|add:'1' }}&releases_page={{ releases_page }}"
+                            >
+                                Next
+                            </a>
+                        {% else %}
+                            <span class="pagination-arrow disabled">Next</span>
+                        {% endif %}
 
-      <p>Artist: {{ item.artist_names }}</p>
-      <p>Release date: {{ item.date|default:"Unknown" }}</p>
-      <p>Type: {{ item.primary_type|default:"Unknown" }}</p>
-      <p>Status: {{ item.status|default:"Unknown" }}</p>
+                    </nav>
 
-      {% if item.in_pzt %}
+                {% endif %}
 
-      <p>Already in PZT</p>
+            </section>
 
-      {% else %}
+            <!-- RELEASES -->
 
-      <form method="POST">
-        {% csrf_token %}
+            <section class="search-section">
+                <h2>Releases</h2>
 
-        <input type="hidden" name="musicbrainz_id" value="{{ item.id }}" />
+                <p>
+                    Found: {{ releases_total }} |
+                    Page {{ releases_page }} of {{ releases_total_pages }}
+                </p>
 
-        <input type="hidden" name="entity_type" value="release" />
+                {% for item in releases %}
 
-        <button type="submit">Import to PZT</button>
-      </form>
+                    <div class="search-result">
+                        <h3>{{ item.title }}</h3>
 
-      {% endif %}
+                        <p>Artist: {{ item.artist_names }}</p>
+                        <p>Release date: {{ item.date|default:"Unknown" }}</p>
+                        <p>Type: {{ item.primary_type|default:"Unknown" }}</p>
+                        <p>Status: {{ item.status|default:"Unknown" }}</p>
 
-      <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
-        Open in MusicBrainz
-      </a>
-    </div>
+                        {% if item.in_pzt %}
 
-    {% empty %}
+                            <p>Already in PZT</p>
 
-    <p>No releases found.</p>
+                        {% else %}
 
-    {% endfor %}
-  </section>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="musicbrainz_id" value="{{ item.id }}" />
+                                <input type="hidden" name="entity_type" value="release" />
+                                <button type="submit">Import to PZT</button>
+                            </form>
 
-  {% endif %}
-  {% endif %}
+                        {% endif %}
+
+                        <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+                            Open in MusicBrainz
+                        </a>
+                    </div>
+
+                {% empty %}
+
+                    <p>No releases found.</p>
+
+                {% endfor %}
+
+                {% if releases_total_pages > 1 %}
+
+                    <nav class="pagination" aria-label="Releases pagination">
+
+                        {% if releases_page > 1 %}
+                            <a
+                                class="pagination-arrow"
+                                href="?q={{ query|urlencode }}&artists_page={{ artists_page }}&releases_page={{ releases_page|add:'-1' }}"
+                            >
+                                Previous
+                            </a>
+                        {% else %}
+                            <span class="pagination-arrow disabled">Previous</span>
+                        {% endif %}
+
+                        <form method="GET" class="pagination-jump">
+                            <input type="hidden" name="q" value="{{ query }}" />
+                            <input type="hidden" name="artists_page" value="{{ artists_page }}" />
+
+                            <label for="releases-page-input">Page</label>
+                            <input
+                                id="releases-page-input"
+                                type="number"
+                                name="releases_page"
+                                value="{{ releases_page }}"
+                                min="1"
+                                max="{{ releases_total_pages }}"
+                                required
+                            />
+                            <span>of {{ releases_total_pages }}</span>
+
+                            <button type="submit">Go</button>
+                        </form>
+
+                        {% if releases_page < releases_total_pages %}
+                            <a
+                                class="pagination-arrow"
+                                href="?q={{ query|urlencode }}&artists_page={{ artists_page }}&releases_page={{ releases_page|add:'1' }}"
+                            >
+                                Next
+                            </a>
+                        {% else %}
+                            <span class="pagination-arrow disabled">Next</span>
+                        {% endif %}
+
+                    </nav>
+
+                {% endif %}
+
+            </section>
+
+        {% endif %}
+    {% endif %}
+
 </div>
 
 {% endblock %}

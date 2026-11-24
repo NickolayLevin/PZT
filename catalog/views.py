@@ -131,6 +131,7 @@ def artist_detail(request, slug):
 
 
 
+
 @login_required(login_url='/admin/login/')
 def musicbrainz_search(request):
 
@@ -140,11 +141,14 @@ def musicbrainz_search(request):
         )
 
     if request.method == "POST":
+
         musicbrainz_id = request.POST.get('musicbrainz_id')
         entity_type = request.POST.get('entity_type')
 
         if musicbrainz_id:
+
             if entity_type == 'artist':
+
                 artist, created = import_artist(musicbrainz_id)
 
                 return redirect(
@@ -153,6 +157,7 @@ def musicbrainz_search(request):
                 )
 
             elif entity_type == 'release':
+
                 release, created = import_release(musicbrainz_id)
 
                 return redirect(
@@ -162,30 +167,97 @@ def musicbrainz_search(request):
 
     query = request.GET.get('q', '').strip()
 
+    page_size = 100
+
+    try:
+        artists_page = max(
+            1,
+            int(request.GET.get('artists_page', 1))
+        )
+    except (TypeError, ValueError):
+        artists_page = 1
+
+    try:
+        releases_page = max(
+            1,
+            int(request.GET.get('releases_page', 1))
+        )
+    except (TypeError, ValueError):
+        releases_page = 1
+
     artists = []
     releases = []
+
+    artists_total = 0
+    releases_total = 0
+
+    artists_total_pages = 1
+    releases_total_pages = 1
+
     error = None
 
     if query:
+
         try:
-            artists = search_artists(query)
-            releases = search_releases(query)
+
+            artists, artists_total = search_artists(
+                query,
+                limit=page_size,
+                offset=(artists_page - 1) * page_size,
+                with_count=True
+            )
+
+            releases, releases_total = search_releases(
+                query,
+                limit=page_size,
+                offset=(releases_page - 1) * page_size,
+                with_count=True
+            )
+
+            artists_total_pages = max(
+                1,
+                (artists_total + page_size - 1) // page_size
+            )
+
+            releases_total_pages = max(
+                1,
+                (releases_total + page_size - 1) // page_size
+            )
+
+            # Проверяем, какие артисты уже есть в PZT.
+
+            existing_artist_ids = set(
+                Artist.objects.filter(
+                    musicbrainz_id__in=[
+                        item['id'] for item in artists
+                    ]
+                ).values_list(
+                    'musicbrainz_id',
+                    flat=True
+                )
+            )
 
             for item in artists:
-                artist = Artist.objects.filter(
-                    musicbrainz_id=item['id']
-                ).first()
+                item['in_pzt'] = item['id'] in existing_artist_ids
 
-                item['in_pzt'] = artist is not None
+            # Проверяем, какие релизы уже есть в PZT.
+
+            existing_release_ids = set(
+                Release.objects.filter(
+                    musicbrainz_id__in=[
+                        item['id'] for item in releases
+                    ]
+                ).values_list(
+                    'musicbrainz_id',
+                    flat=True
+                )
+            )
 
             for item in releases:
-                release = Release.objects.filter(
-                    musicbrainz_id=item['id']
-                ).first()
-
-                item['in_pzt'] = release is not None
+                item['in_pzt'] = item['id'] in existing_release_ids
 
         except requests.exceptions.RequestException:
+
             error = (
                 'MusicBrainz is temporarily unavailable. '
                 'Please try again later.'
@@ -193,8 +265,19 @@ def musicbrainz_search(request):
 
     context = {
         'query': query,
+
         'artists': artists,
         'releases': releases,
+
+        'artists_page': artists_page,
+        'releases_page': releases_page,
+
+        'artists_total': artists_total,
+        'releases_total': releases_total,
+
+        'artists_total_pages': artists_total_pages,
+        'releases_total_pages': releases_total_pages,
+
         'error': error,
     }
 
@@ -203,6 +286,7 @@ def musicbrainz_search(request):
         'catalog/musicbrainz_search.html',
         context
     )
+
 
 
 def rate_release(request, slug):
